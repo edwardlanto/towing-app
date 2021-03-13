@@ -1,15 +1,18 @@
-version: '3.8'
+# docker-compose.yml
+
+version: '3.9'
 
 services:
   taxi-redis:
     container_name: taxi-redis
-    image: redis:6.0.9-alpine
+    image: redis:6.0.6-alpine
 
+  # new
   taxi-database:
     container_name: taxi-database
     environment:
       - POSTGRES_PASSWORD=taxi
-    image: postgres:13.1
+    image: postgres:13.2
     ports:
       - 5433:5432
     volumes:
@@ -18,20 +21,16 @@ services:
   taxi-server:
     build:
       context: ./server
-    command: daphne --bind 0.0.0.0 --port 8000 taxi.asgi:application
+    command: python manage.py runserver 0.0.0.0:8000
     container_name: taxi-server
     depends_on:
       - taxi-redis
-      - taxi-database
+      - taxi-database # new
+    # new
     env_file:
       - ./server/.env
     ports:
       - 8001:8000
-    volumes:
-      - ./server:/usr/src/app
-      - media:/usr/src/app/media
-      - static:/usr/src/app/static
-
   taxi-client:
     build:
       context: ./client
@@ -43,24 +42,7 @@ services:
       - CHROME_BIN=chromium-browser
     ports:
       - 4201:4200
-    volumes:
-      - ./client:/usr/src/app
 
-  nginx:
-    build:
-      context: ./nginx
-    container_name: taxi-nginx
-    depends_on:
-      - taxi-server
-      - taxi-client
-    ports:
-      - 8080:80
-    restart: always
-    volumes:
-      - media:/usr/src/app/media
-      - static:/usr/src/app/static
-
+# new
 volumes:
   taxi-database:
-  media:
-  static:

@@ -1,4 +1,6 @@
-FROM python:3.9.1-alpine
+# server/Dockerfile
+
+FROM python:3.9.2-alpine
 
 RUN apk add --update --no-cache \
     g++ gcc libxslt-dev musl-dev python3-dev \
@@ -15,5 +17,3 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . /usr/src/app
-
-RUN python manage.py collectstatic --noinput
